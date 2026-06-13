@@ -46,8 +46,8 @@ export async function getDashboardStats(userId: string): Promise<DashboardStats>
     prisma.task.count({ where: { ...base, OR: [{ createdAt: { gte: weekStart, lte: weekEnd } }, { completedAt: { gte: weekStart, lte: weekEnd } }] } }),
     prisma.task.count({ where: { ...base, status: "COMPLETED", completedAt: { gte: monthStart, lte: monthEnd } } }),
     prisma.task.count({ where: { ...base, OR: [{ createdAt: { gte: monthStart, lte: monthEnd } }, { completedAt: { gte: monthStart, lte: monthEnd } }] } }),
-    prisma.task.groupBy({ by: ["priority"], where: active, _count: true }),
-    prisma.task.groupBy({ by: ["status"], where: base, _count: true }),
+    prisma.task.groupBy({ by: ["priority"], where: active, _count: true, orderBy: { priority: "asc" } }),
+    prisma.task.groupBy({ by: ["status"], where: base, _count: true, orderBy: { status: "asc" } }),
   ]);
 
   const priorityBreakdown = { LOW: 0, MEDIUM: 0, HIGH: 0, URGENT: 0 } as Record<Priority, number>;
@@ -106,6 +106,7 @@ export async function getCategoryDistribution(userId: string) {
     by: ["categoryId"],
     where: { userId, deletedAt: null },
     _count: true,
+    orderBy: { categoryId: "asc" },
   });
   const categories = await prisma.category.findMany({ where: { userId, deletedAt: null } });
   const map = new Map(categories.map((c) => [c.id, c]));

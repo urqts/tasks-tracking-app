@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import type { ActivityAction } from "@prisma/client";
 
@@ -14,7 +15,13 @@ export async function logActivity(
 ) {
   try {
     await prisma.activityLog.create({
-      data: { userId, action, entityType, entityId, metadata: metadata ?? {} },
+      data: {
+        userId,
+        action,
+        entityType,
+        entityId,
+        metadata: (metadata ?? {}) as Prisma.InputJsonValue,
+      },
     });
   } catch {
     // ignore logging failures
