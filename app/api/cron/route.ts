@@ -53,9 +53,10 @@ export async function GET(request: Request) {
     if (tasks.length === 0) continue;
 
     const s = user.settings;
-    const overdue = [];
-    const dueToday = [];
-    const dueTomorrow = [];
+    type Row = { title: string; dueDate: string; link: string };
+    const overdue: Row[] = [];
+    const dueToday: Row[] = [];
+    const dueTomorrow: Row[] = [];
     for (const t of tasks) {
       const due = t.dueDate as Date;
       const row = { title: t.title, dueDate: format(due, "MMM d"), link: `${APP_URL}/tasks?focus=${t.id}` };
