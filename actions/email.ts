@@ -75,7 +75,10 @@ export async function sendTestEmail(): Promise<
     };
   }
   if (!res.ok) {
-    return { success: false, error: "Couldn't send the email. Check your Resend API key and sender address." };
+    return {
+      success: false,
+      error: res.error ?? "Couldn't send the email. Check your Resend API key and sender address.",
+    };
   }
 
   return { success: true, data: { delivered: true, configured: true } };

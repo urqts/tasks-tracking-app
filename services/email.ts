@@ -7,7 +7,7 @@ export async function sendEmail(opts: {
   to: string;
   subject: string;
   html: string;
-}): Promise<{ ok: boolean; skipped?: boolean }> {
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
   const apiKey = process.env.RESEND_API_KEY;
   const from = process.env.EMAIL_FROM ?? "TaskFlow <onboarding@resend.dev>";
 
@@ -26,12 +26,21 @@ export async function sendEmail(opts: {
       body: JSON.stringify({ from, to: opts.to, subject: opts.subject, html: opts.html }),
     });
     if (!res.ok) {
-      console.error("[email] send failed", res.status, await res.text());
-      return { ok: false };
+      const detail = await res.text();
+      console.error("[email] send failed", res.status, detail);
+      // Surface Resend's own error message ("message" field) when present.
+      let message = detail;
+      try {
+        const parsed = JSON.parse(detail);
+        message = parsed.message || parsed.error || detail;
+      } catch {
+        /* keep raw text */
+      }
+      return { ok: false, error: `Resend (${res.status}): ${message}` };
     }
     return { ok: true };
   } catch (err) {
     console.error("[email] send error", err);
-    return { ok: false };
+    return { ok: false, error: err instanceof Error ? err.message : "Network error contacting Resend" };
   }
 }
