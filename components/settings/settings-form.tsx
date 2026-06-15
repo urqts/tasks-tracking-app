@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useTheme } from "next-themes";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, Send } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,7 @@ import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { updateSettings, updateProfile } from "@/actions/settings";
+import { sendTestEmail } from "@/actions/email";
 import type { Settings } from "@prisma/client";
 
 interface SettingsFormProps {
@@ -26,6 +27,7 @@ const LANGUAGES = [{ v: "en", l: "English" }, { v: "es", l: "Español" }, { v: "
 export function SettingsForm({ settings, name, email }: SettingsFormProps) {
   const { theme, setTheme } = useTheme();
   const [isPending, startTransition] = useTransition();
+  const [isSending, startSending] = useTransition();
   const [profileName, setProfileName] = useState(name ?? "");
   const [state, setState] = useState({
     defaultView: settings.defaultView,
@@ -52,6 +54,14 @@ export function SettingsForm({ settings, name, email }: SettingsFormProps) {
       const res = await updateProfile(profileName);
       if (res.success) toast.success("Profile updated");
       else toast.error(res.error);
+    });
+  }
+
+  function testEmail() {
+    startSending(async () => {
+      const res = await sendTestEmail();
+      if (res.success) toast.success(`Test email sent to ${email}`);
+      else toast.error(res.error, { duration: 8000 });
     });
   }
 
@@ -143,6 +153,19 @@ export function SettingsForm({ settings, name, email }: SettingsFormProps) {
           <ToggleRow label="Due today" checked={state.notifyDueToday} onChange={(c) => persist({ notifyDueToday: c })} />
           <ToggleRow label="Due tomorrow" checked={state.notifyDueTomorrow} onChange={(c) => persist({ notifyDueTomorrow: c })} />
           <ToggleRow label="Overdue" checked={state.notifyOverdue} onChange={(c) => persist({ notifyOverdue: c })} />
+          <Separator />
+          <div className="flex flex-wrap items-center justify-between gap-3 pt-3">
+            <div>
+              <p className="text-sm font-medium">Send a test email</p>
+              <p className="text-xs text-muted-foreground">
+                Email a sample reminder to {email} to check your setup.
+              </p>
+            </div>
+            <Button variant="outline" onClick={testEmail} disabled={isSending}>
+              {isSending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+              Send test email
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>

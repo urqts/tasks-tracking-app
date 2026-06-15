@@ -9,15 +9,6 @@ try {
 
 const nextConfig = {
   reactStrictMode: true,
-  // Don't fail the production build on lint (style) errors. TypeScript type
-  // errors still block the build, so real bugs are still caught.
-  eslint: { ignoreDuringBuilds: true },
-  experimental: {
-    // Server Actions are enabled by default in Next 15; keep body size sane for uploads handled client-side.
-    serverActions: {
-      bodySizeLimit: "2mb",
-    },
-  },
   images: {
     remotePatterns: supabaseHost
       ? [{ protocol: "https", hostname: supabaseHost, pathname: "/storage/v1/object/**" }]
