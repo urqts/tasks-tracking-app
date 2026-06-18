@@ -13,6 +13,12 @@ export const metadata: Metadata = {
   description:
     "TaskFlow helps you manage personal tasks, homework, assignments, projects, recurring tasks and goals in one clean, fast workspace.",
   manifest: "/manifest.webmanifest",
+  applicationName: "TaskFlow",
+  appleWebApp: {
+    capable: true,
+    title: "TaskFlow",
+    statusBarStyle: "default",
+  },
 };
 
 export const viewport: Viewport = {
